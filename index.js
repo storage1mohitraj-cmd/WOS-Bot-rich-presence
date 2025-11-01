@@ -1,6 +1,6 @@
 import { Client, GatewayIntentBits, ActivityType } from "discord.js";
 import "dotenv/config";
-import express from "express"; // ✅ fixed import for ESM
+import express from "express"; // ✅ Only one express import here!
 
 const client = new Client({
   intents: [GatewayIntentBits.Guilds],
@@ -35,8 +35,8 @@ client.once("ready", () => {
 client.login(process.env.DISCORD_TOKEN);
 
 // --- Keep Alive for Render Free Plan ---
-// --- Keep Alive for Render Free Plan ---
-import express from "express";
 const app = express();
 app.get("/", (req, res) => res.send("Bot is running ✅"));
-app.listen(process.env.PORT || 3000, () => console.log("🌐 Keep-alive server started"));
+app.listen(process.env.PORT || 3000, () =>
+  console.log("🌐 Keep-alive server started")
+);
