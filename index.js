@@ -1,13 +1,22 @@
 import { Client, GatewayIntentBits, ActivityType } from "discord.js";
 import "dotenv/config";
-import express from "express"; // ✅ Only one express import here!
+import express from "express";
 
 const client = new Client({
   intents: [GatewayIntentBits.Guilds],
+  // Add these options for better connection stability
+  ws: {
+    properties: {
+      browser: "Discord Client"
+    }
+  }
 });
+
+let statusInterval = null;
 
 client.once("ready", () => {
   console.log(`✅ Logged in as ${client.user.tag}`);
+  console.log(`📊 Connected to ${client.guilds.cache.size} guilds`);
 
   const statuses = [
     // 🎯 AI & CHAT COMMANDS
@@ -89,6 +98,11 @@ client.once("ready", () => {
   // Set initial status immediately
   const setStatus = () => {
     try {
+      if (!client.user) {
+        console.warn("⚠️ Client user not available, skipping status update");
+        return;
+      }
+
       const status = statuses[i];
       client.user.setActivity(status);
       console.log(`🔄 Status updated [${i + 1}/${statuses.length}]: ${status.name}`);
@@ -101,17 +115,99 @@ client.once("ready", () => {
   // Set initial status
   setStatus();
 
-  // Update status every 10 seconds in an endless loop
-  setInterval(setStatus, 10000); // Change every 10 seconds
+  // Clear any existing interval
+  if (statusInterval) {
+    clearInterval(statusInterval);
+  }
 
-  console.log(`✅ Status rotation started! Cycling through ${statuses.length} statuses every 10 seconds.`);
+  // Update status every 15 seconds in an endless loop (increased from 10s to avoid rate limiting)
+  statusInterval = setInterval(setStatus, 15000);
+
+  console.log(`✅ Status rotation started! Cycling through ${statuses.length} statuses every 15 seconds.`);
 });
 
-client.login(process.env.DISCORD_TOKEN);
+// Handle warnings
+client.on("warn", (info) => {
+  console.warn("⚠️ Discord Client Warning:", info);
+});
+
+// Handle errors
+client.on("error", (error) => {
+  console.error("❌ Discord Client Error:", error);
+});
+
+// Handle disconnect
+client.on("disconnect", () => {
+  console.warn("⚠️ Discord Client Disconnected! Attempting to reconnect...");
+  if (statusInterval) {
+    clearInterval(statusInterval);
+    statusInterval = null;
+  }
+});
+
+// Handle reconnecting
+client.on("reconnecting", () => {
+  console.log("🔄 Discord Client Reconnecting...");
+});
+
+// Handle resume
+client.on("resume", (replayed) => {
+  console.log(`✅ Discord Client Resumed! Replayed ${replayed} events.`);
+});
+
+// Handle shard errors
+client.on("shardError", (error, shardId) => {
+  console.error(`❌ Shard ${shardId} Error:`, error);
+});
+
+// Handle shard disconnect
+client.on("shardDisconnect", (event, shardId) => {
+  console.warn(`⚠️ Shard ${shardId} Disconnected:`, event);
+});
+
+// Handle shard reconnecting
+client.on("shardReconnecting", (shardId) => {
+  console.log(`🔄 Shard ${shardId} Reconnecting...`);
+});
+
+// Handle shard resume
+client.on("shardResume", (shardId, replayed) => {
+  console.log(`✅ Shard ${shardId} Resumed! Replayed ${replayed} events.`);
+});
+
+// Login to Discord
+client.login(process.env.DISCORD_TOKEN).catch((error) => {
+  console.error("❌ Failed to login to Discord:", error);
+  process.exit(1);
+});
 
 // --- Keep Alive for Render Free Plan ---
 const app = express();
-app.get("/", (req, res) => res.send("Bot is running ✅"));
-app.listen(process.env.PORT || 3000, () =>
-  console.log("🌐 Keep-alive server started")
-);
+
+app.get("/", (req, res) => {
+  const uptime = process.uptime();
+  const hours = Math.floor(uptime / 3600);
+  const minutes = Math.floor((uptime % 3600) / 60);
+  const seconds = Math.floor(uptime % 60);
+
+  res.json({
+    status: "✅ Bot is running",
+    uptime: `${hours}h ${minutes}m ${seconds}s`,
+    guilds: client.guilds?.cache?.size || 0,
+    user: client.user?.tag || "Not logged in"
+  });
+});
+
+app.get("/health", (req, res) => {
+  res.json({
+    status: client.isReady() ? "healthy" : "unhealthy",
+    ready: client.isReady(),
+    uptime: process.uptime(),
+    memoryUsage: process.memoryUsage()
+  });
+});
+
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+  console.log(`🌐 Keep-alive server started on port ${PORT}`);
+});

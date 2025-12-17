@@ -4,11 +4,16 @@ A professional Discord bot presence system that showcases all available commands
 
 ## 🌟 Features
 
-- **64 Rotating Statuses**: Comprehensive showcase of all bot commands
+- **53 Rotating Statuses**: Comprehensive showcase of all bot commands
 - **Organized Categories**: Commands grouped by functionality
 - **Professional Design**: Emoji indicators and clear descriptions
 - **Smart Rotation**: Featured commands appear more frequently
 - **Activity Types**: Proper use of Playing, Watching, and Listening statuses
+- **🔄 Auto-Reconnection**: Automatically recovers from Discord disconnections
+- **🛡️ Error Handling**: Comprehensive error logging and recovery
+- **📊 Health Monitoring**: Built-in endpoints to monitor bot status
+- **⚡ Rate Limit Prevention**: Optimized 15-second rotation interval
+
 
 ## 📂 Project Structure
 
@@ -115,11 +120,11 @@ The bot presence rotates through these categories:
 ## ⚙️ Configuration
 
 ### Rotation Speed
-Default: 10 seconds per status
+Default: 15 seconds per status (optimized to prevent rate limiting)
 ```javascript
 setInterval(() => {
   // ... rotation logic
-}, 10000); // Change this value (in milliseconds)
+}, 15000); // Change this value (in milliseconds)
 ```
 
 ### Adding New Statuses
@@ -140,14 +145,34 @@ const statuses = [
 
 ## 🔄 Keep-Alive Server
 
-The bot includes an Express server for platforms like Render:
-```javascript
-const app = express();
-app.get("/", (req, res) => res.send("Bot is running ✅"));
-app.listen(process.env.PORT || 3000);
+The bot includes an Express server for platforms like Render with health monitoring:
+
+### Endpoints
+
+#### `GET /` - Status Page
+Returns JSON with bot information:
+```json
+{
+  "status": "✅ Bot is running",
+  "uptime": "2h 15m 30s",
+  "guilds": 5,
+  "user": "YourBot#1234"
+}
 ```
 
-This prevents the bot from sleeping on free hosting tiers.
+#### `GET /health` - Health Check
+Returns detailed health information:
+```json
+{
+  "status": "healthy",
+  "ready": true,
+  "uptime": 8130.5,
+  "memoryUsage": { ... }
+}
+```
+
+This prevents the bot from sleeping on free hosting tiers and allows external monitoring.
+
 
 ## 📊 Status Breakdown
 
@@ -218,18 +243,48 @@ When you add new commands to your main bot:
 
 ### Bot not showing status
 - Check if `DISCORD_TOKEN` is correct
-- Verify bot has proper intents
+- Verify bot has proper intents enabled
 - Check console for errors
+- Visit `/health` endpoint to verify bot is ready
 
 ### Status not rotating
-- Verify `setInterval` is running
-- Check for JavaScript errors
-- Ensure bot is connected
+- Verify `setInterval` is running (check logs for "Status rotation started!")
+- Check for JavaScript errors in console
+- Ensure bot is connected (look for "Logged in as" message)
+- Check if status interval was cleared due to disconnection
 
 ### Keep-alive server not working
 - Check `PORT` environment variable
-- Verify Express is installed
+- Verify Express is installed (`npm install`)
 - Check firewall settings
+- Test endpoints: `/` and `/health`
+
+### Bot keeps disconnecting
+- **Normal behavior**: Free tier services may have intermittent connections
+- **Auto-recovery**: Bot will automatically reconnect (check logs for "Reconnecting...")
+- **Check Discord API**: Visit https://discordstatus.com/
+- **Monitor logs**: Look for "Discord Client Resumed!" messages
+
+### Rich presence stops after some time
+- **Fixed in v2.1**: Now includes auto-reconnection logic
+- **Check health**: Visit `/health` endpoint - should show `"ready": true`
+- **Review logs**: Look for disconnect/reconnect messages
+- **Rate limiting**: Now uses 15-second intervals to prevent this
+- **Memory issues**: Check `/health` for memory usage trends
+
+### How to monitor the bot
+1. **Status page**: `https://your-app.onrender.com/`
+2. **Health check**: `https://your-app.onrender.com/health`
+3. **Render logs**: Check for status update messages every 15 seconds
+4. **Discord**: Verify rich presence is visible on bot profile
+
+### Common log messages explained
+- ✅ `Status rotation started!` - Bot is working correctly
+- 🔄 `Status updated [X/53]` - Normal operation
+- ⚠️ `Discord Client Disconnected!` - Connection lost, will auto-reconnect
+- ✅ `Discord Client Resumed!` - Successfully reconnected
+- ❌ `Error setting status` - Check Discord token and permissions
+
 
 ## 📚 Resources
 
@@ -258,7 +313,9 @@ This project is part of the WOS Discord Bot ecosystem.
 
 ---
 
-**Version**: 2.0  
-**Last Updated**: December 17, 2025  
-**Status Count**: 64 rotating statuses  
-**Categories**: 10 organized categories
+**Version**: 2.1  
+**Last Updated**: December 18, 2025  
+**Status Count**: 53 rotating statuses  
+**Categories**: 10 organized categories  
+**New**: Auto-reconnection & health monitoring
+
