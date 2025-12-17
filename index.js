@@ -10,18 +10,78 @@ client.once("ready", () => {
   console.log(`✅ Logged in as ${client.user.tag}`);
 
   const statuses = [
-    // 🔹 Focus commands (appear more often)
-    { name: "🤖 Talk with AI — use /ask", type: ActivityType.Playing },
-    { name: "🧠 Chat • Learn • Have Fun — /ask", type: ActivityType.Watching },
-    { name: "⏰ Never forget tasks — /reminder", type: ActivityType.Playing },
-    { name: "📅 Smart reminders with /reminder", type: ActivityType.Listening },
+    // 🎯 AI & CHAT COMMANDS
+    { name: "🤖 Chat with AI — /ask anything!", type: ActivityType.Playing },
+    { name: "🎨 Personalize chat — /personalisechat", type: ActivityType.Watching },
+    { name: "✨ Generate AI art — /imagine", type: ActivityType.Playing },
 
-    // 🔹 Other commands (rotating)
-    { name: "🎁 Claim rewards — /giftcode", type: ActivityType.Playing },
-    { name: "📊 Check server stats — /serverstats", type: ActivityType.Watching },
-    { name: "🎪 Explore events — /event", type: ActivityType.Playing },
-    { name: "🤖 Discover all commands — /help", type: ActivityType.Playing },
-    { name: "✨ Generate AI images — /imagine", type: ActivityType.Playing },
+    // 🎵 MUSIC COMMANDS
+    { name: "🎵 Play music — /play [song]", type: ActivityType.Listening },
+    { name: "⏸️ Control playback — /pause /resume /skip", type: ActivityType.Listening },
+    { name: "🎼 Manage queue — /queue /shuffle /loop", type: ActivityType.Listening },
+    { name: "🎚️ Adjust volume — /volume [0-100]", type: ActivityType.Listening },
+    { name: "📜 View now playing — /nowplaying", type: ActivityType.Listening },
+    { name: "💾 Save playlists — /playlist", type: ActivityType.Listening },
+    { name: "⏮️ Previous track — /previous", type: ActivityType.Listening },
+    { name: "⏩ Seek position — /seek [time]", type: ActivityType.Listening },
+    { name: "🗑️ Clear queue — /clear", type: ActivityType.Listening },
+    { name: "❌ Remove track — /remove [position]", type: ActivityType.Listening },
+    { name: "🛑 Stop music — /stop", type: ActivityType.Listening },
+
+    // ⏰ REMINDERS & EVENTS
+    { name: "⏰ Set reminders — /reminder", type: ActivityType.Playing },
+    { name: "� Reminder dashboard — /reminderdashboard", type: ActivityType.Watching },
+    { name: "🎪 WOS events info — /event", type: ActivityType.Playing },
+    { name: "🎂 Set birthday — /birthday", type: ActivityType.Playing },
+
+    // 🏰 ALLIANCE & GAME COMMANDS
+    { name: "🏰 Alliance monitor — /alliancemonitor", type: ActivityType.Watching },
+    { name: "📈 Alliance activity — /allianceactivity", type: ActivityType.Watching },
+    { name: "⚙️ Alliance settings — /settings", type: ActivityType.Watching },
+    { name: "🔄 Refresh data — /refresh", type: ActivityType.Playing },
+    { name: "🎮 Player info — check stats", type: ActivityType.Playing },
+    { name: "📅 Server age — /server_age", type: ActivityType.Watching },
+
+    // 🎁 GIFT CODE COMMANDS
+    { name: "🎁 Active gift codes — /giftcode", type: ActivityType.Playing },
+    { name: "⚙️ Gift code settings — /giftcodesettings", type: ActivityType.Watching },
+    { name: "🎯 Auto-redeem codes — configure now!", type: ActivityType.Playing },
+
+    // 🌐 TRANSLATION COMMANDS
+    { name: "� Auto translate — /autotranslatecreate", type: ActivityType.Watching },
+    { name: "📝 Translation list — /autotranslatelist", type: ActivityType.Watching },
+    { name: "✏️ Edit translation — /autotranslateedit", type: ActivityType.Watching },
+    { name: "🔄 Toggle translation — /autotranslatetoggle", type: ActivityType.Watching },
+    { name: "🗑️ Delete translation — /autotranslatedelete", type: ActivityType.Watching },
+
+    // 👋 SERVER MANAGEMENT
+    { name: "👋 Welcome messages — /welcome", type: ActivityType.Watching },
+    { name: "�️ Remove welcome — /removewelcomechannel", type: ActivityType.Watching },
+    { name: "🔧 Manage server — /manage", type: ActivityType.Playing },
+    { name: "🏠 Main menu — /start", type: ActivityType.Playing },
+
+    // 📊 STATISTICS & INFO
+    { name: "📊 Server stats — /serverstats", type: ActivityType.Watching },
+    { name: "🔥 Most active users — /mostactive", type: ActivityType.Watching },
+    { name: "💾 Storage status — /storage_status", type: ActivityType.Watching },
+
+    // 🔍 UTILITIES
+    { name: "🔍 Web search — /websearch", type: ActivityType.Playing },
+    { name: "🎲 Roll dice — /dice", type: ActivityType.Playing },
+    { name: "⚔️ Dice battle — /dicebattle", type: ActivityType.Playing },
+    { name: "❓ Help & commands — /help", type: ActivityType.Watching },
+
+    // 🎯 FEATURED HIGHLIGHTS (appear more often)
+    { name: "🌟 Start here — /start menu", type: ActivityType.Playing },
+    { name: "💬 Ask me anything — /ask", type: ActivityType.Listening },
+    { name: "🎵 Music player ready — /play", type: ActivityType.Listening },
+    { name: "⏰ Never miss events — /reminder", type: ActivityType.Playing },
+    { name: "🎁 Free rewards — /giftcode", type: ActivityType.Playing },
+    { name: "🏰 Track alliance — /alliancemonitor", type: ActivityType.Watching },
+    { name: "✨ AI image generator — /imagine", type: ActivityType.Playing },
+    { name: "🌐 Auto translate chats — setup now!", type: ActivityType.Watching },
+    { name: "📊 Server insights — /serverstats", type: ActivityType.Watching },
+    { name: "🤖 Full command list — /help", type: ActivityType.Watching },
   ];
 
   let i = 0;
